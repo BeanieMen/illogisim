@@ -19,7 +19,10 @@ export type ComponentKind =
   | "constant"
   | "led"
   | "clock"
-  | "display";
+  | "display"
+  | "gateInput"
+  | "gateOutput"
+  | "custom";
 
 export type PinSpec = {
   id: string;
@@ -42,6 +45,12 @@ export type LogicNodeData = {
   label: string;
   value?: LogicValue;
   clockHz?: number;
+  customGateId?: string;
+  terminalIndex?: number;
+  pins?: {
+    inputs: PinSpec[];
+    outputs: PinSpec[];
+  };
   inputValues?: Record<string, LogicValue>;
   outputValues?: Record<string, LogicValue>;
 };
@@ -65,7 +74,23 @@ export type CircuitSnapshot = {
   edges: WireEdge[];
 };
 
+export type CustomGateDefinition = {
+  id: string;
+  name: string;
+  inputs: PinSpec[];
+  outputs: PinSpec[];
+  circuit: CircuitSnapshot;
+};
+
+export type GateBuilderState = {
+  active: boolean;
+  name: string;
+  inputCount: number;
+  outputCount: number;
+};
+
 export type SerializedCircuit = CircuitSnapshot & {
   version: 1;
   savedAt: string;
+  customGates?: CustomGateDefinition[];
 };

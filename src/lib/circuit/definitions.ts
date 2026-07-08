@@ -1,4 +1,9 @@
-import type { ComponentDefinition, ComponentKind, PinSpec } from "@/types/circuit";
+import type {
+  ComponentDefinition,
+  ComponentKind,
+  LogicNodeData,
+  PinSpec
+} from "@/types/circuit";
 
 const bitInput = (id: string, label = id.toUpperCase()): PinSpec => ({
   id,
@@ -118,6 +123,30 @@ export const componentDefinitions: Record<ComponentKind, ComponentDefinition> = 
     accent: "#0284c7",
     inputs: [bitInput("in", "IN")],
     outputs: []
+  },
+  gateInput: {
+    kind: "gateInput",
+    label: "Gate Input",
+    description: "External input for a custom gate",
+    accent: "#2dd4bf",
+    inputs: [],
+    outputs: [bitOutput()]
+  },
+  gateOutput: {
+    kind: "gateOutput",
+    label: "Gate Output",
+    description: "External output for a custom gate",
+    accent: "#f59e0b",
+    inputs: [bitInput("in", "IN")],
+    outputs: []
+  },
+  custom: {
+    kind: "custom",
+    label: "Custom",
+    description: "Saved custom gate",
+    accent: "#a78bfa",
+    inputs: [bitInput("in1", "I1")],
+    outputs: [bitOutput("out1", "O1")]
   }
 };
 
@@ -127,7 +156,22 @@ export const paletteGroups: { title: string; kinds: ComponentKind[] }[] = [
   { title: "Outputs", kinds: ["led", "display"] }
 ];
 
-export function getPinDefinition(kind: ComponentKind, pinId: string) {
+export function getComponentDefinition(kind: ComponentKind, data?: LogicNodeData) {
   const definition = componentDefinitions[kind];
+
+  if ((kind === "custom" || kind === "gateInput" || kind === "gateOutput") && data?.pins) {
+    return {
+      ...definition,
+      label: data.label,
+      inputs: data.pins.inputs,
+      outputs: data.pins.outputs
+    };
+  }
+
+  return definition;
+}
+
+export function getPinDefinition(kind: ComponentKind, pinId: string, data?: LogicNodeData) {
+  const definition = getComponentDefinition(kind, data);
   return [...definition.inputs, ...definition.outputs].find((pin) => pin.id === pinId);
 }

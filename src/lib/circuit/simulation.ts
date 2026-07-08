@@ -1,10 +1,11 @@
 import type {
   CircuitSnapshot,
   ComponentKind,
+  CustomGateDefinition,
   LogicNode,
   LogicValue
 } from "@/types/circuit";
-import { componentDefinitions } from "./definitions";
+import { getComponentDefinition } from "./definitions";
 
 type PinKey = string;
 
@@ -17,7 +18,7 @@ function key(nodeId: string, handleId: string): PinKey {
 }
 
 function evaluateGate(kind: ComponentKind, inputs: LogicValue[], value?: LogicValue) {
-  if (kind === "switch" || kind === "button") return value ?? low;
+  if (kind === "switch" || kind === "button" || kind === "gateInput") return value ?? low;
   if (kind === "constant") return high;
   if (kind === "clock") return value ?? low;
   if (inputs.some((input) => input === unknown)) return unknown;
@@ -44,6 +45,75 @@ function evaluateGate(kind: ComponentKind, inputs: LogicValue[], value?: LogicVa
   }
 }
 
+function evaluateNodeOutputs(
+  node: LogicNode,
+  inputs: LogicValue[],
+  customGates: CustomGateDefinition[],
+  depth: number
+) {
+  const definition = getComponentDefinition(node.data.kind, node.data);
+  const outputs: Record<string, LogicValue> = {};
+
+  if (node.data.kind === "custom") {
+    if (depth > 12) {
+      definition.outputs.forEach((pin) => {
+        outputs[pin.id] = unknown;
+      });
+      return outputs;
+    }
+
+    const customGate = customGates.find((gate) => gate.id === node.data.customGateId);
+    const values = customGate
+      ? evaluateCustomGate(customGate, inputs, customGates, depth + 1)
+      : definition.outputs.map(() => unknown);
+
+    definition.outputs.forEach((pin, index) => {
+      outputs[pin.id] = values[index] ?? unknown;
+    });
+    return outputs;
+  }
+
+  const outputValue = evaluateGate(node.data.kind, inputs, node.data.value);
+  definition.outputs.forEach((pin) => {
+    outputs[pin.id] = outputValue;
+  });
+
+  return outputs;
+}
+
+function evaluateCustomGate(
+  customGate: CustomGateDefinition,
+  inputs: LogicValue[],
+  customGates: CustomGateDefinition[],
+  depth: number
+) {
+  const internalNodes = customGate.circuit.nodes.map((node) => {
+    if (node.data.kind !== "gateInput") return node;
+    const index = node.data.terminalIndex ?? 0;
+    return {
+      ...node,
+      data: {
+        ...node.data,
+        value: inputs[index] ?? unknown
+      }
+    };
+  });
+
+  const evaluated = evaluateCircuit(
+    {
+      nodes: internalNodes,
+      edges: customGate.circuit.edges
+    },
+    customGates,
+    depth
+  );
+
+  return evaluated.nodes
+    .filter((node) => node.data.kind === "gateOutput")
+    .sort((a, b) => (a.data.terminalIndex ?? 0) - (b.data.terminalIndex ?? 0))
+    .map((node) => node.data.inputValues?.in ?? unknown);
+}
+
 class UnionFind {
   private parents = new Map<PinKey, PinKey>();
 
@@ -67,10 +137,14 @@ class UnionFind {
   }
 }
 
-export function evaluateCircuit(snapshot: CircuitSnapshot): CircuitSnapshot {
+export function evaluateCircuit(
+  snapshot: CircuitSnapshot,
+  customGates: CustomGateDefinition[] = [],
+  depth = 0
+): CircuitSnapshot {
   const unionFind = new UnionFind();
   snapshot.nodes.forEach((node) => {
-    const definition = componentDefinitions[node.data.kind];
+    const definition = getComponentDefinition(node.data.kind, node.data);
     [...definition.inputs, ...definition.outputs].forEach((pin) => {
       unionFind.add(key(node.id, pin.id));
     });
@@ -82,7 +156,7 @@ export function evaluateCircuit(snapshot: CircuitSnapshot): CircuitSnapshot {
     }
   });
 
-  let pinValues = seedOutputValues(snapshot.nodes);
+  let pinValues = seedOutputValues(snapshot.nodes, customGates, depth);
   let inputValuesByNode = new Map<string, Record<string, LogicValue>>();
   let outputValuesByNode = new Map<string, Record<string, LogicValue>>();
 
@@ -94,15 +168,14 @@ export function evaluateCircuit(snapshot: CircuitSnapshot): CircuitSnapshot {
     let changed = false;
 
     snapshot.nodes.forEach((node) => {
-      const definition = componentDefinitions[node.data.kind];
+      const definition = getComponentDefinition(node.data.kind, node.data);
       const inputs = definition.inputs.map(
         (pin) => inputValuesByNode.get(node.id)?.[pin.id] ?? unknown
       );
-      const outputValue = evaluateGate(node.data.kind, inputs, node.data.value);
-      const outputs: Record<string, LogicValue> = {};
+      const outputs = evaluateNodeOutputs(node, inputs, customGates, depth);
 
       definition.outputs.forEach((pin) => {
-        outputs[pin.id] = outputValue;
+        const outputValue = outputs[pin.id] ?? unknown;
         const pinKey = key(node.id, pin.id);
         nextPinValues.set(pinKey, outputValue);
         if (pinValues.get(pinKey) !== outputValue) changed = true;
@@ -143,15 +216,19 @@ export function evaluateCircuit(snapshot: CircuitSnapshot): CircuitSnapshot {
   };
 }
 
-function seedOutputValues(nodes: LogicNode[]) {
+function seedOutputValues(
+  nodes: LogicNode[],
+  customGates: CustomGateDefinition[],
+  depth: number
+) {
   const pinValues = new Map<PinKey, LogicValue>();
 
   nodes.forEach((node) => {
-    const definition = componentDefinitions[node.data.kind];
-    const value = evaluateGate(node.data.kind, [], node.data.value);
+    const definition = getComponentDefinition(node.data.kind, node.data);
+    const outputs = evaluateNodeOutputs(node, [], customGates, depth);
 
     definition.outputs.forEach((pin) => {
-      pinValues.set(key(node.id, pin.id), value);
+      pinValues.set(key(node.id, pin.id), outputs[pin.id] ?? unknown);
     });
   });
 
@@ -179,7 +256,7 @@ function resolveNetValues(
   });
 
   snapshot.nodes.forEach((node) => {
-    const definition = componentDefinitions[node.data.kind];
+    const definition = getComponentDefinition(node.data.kind, node.data);
     definition.inputs.forEach((pin) => {
       const netId = unionFind.find(key(node.id, pin.id));
       if (!drivenCounts.has(netId)) netValues.set(netId, unknown);
@@ -197,7 +274,7 @@ function collectInputValues(
   const values = new Map<string, Record<string, LogicValue>>();
 
   nodes.forEach((node) => {
-    const definition = componentDefinitions[node.data.kind];
+    const definition = getComponentDefinition(node.data.kind, node.data);
     const nodeInputs: Record<string, LogicValue> = {};
 
     definition.inputs.forEach((pin) => {
