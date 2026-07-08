@@ -15,12 +15,10 @@ function valueLabel(value: LogicValue | undefined) {
 }
 
 function Pin({
-  nodeId,
   pin,
   value,
   side
 }: {
-  nodeId: string;
   pin: PinSpec;
   value: LogicValue | undefined;
   side: "left" | "right";
@@ -104,7 +102,6 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
           {definition.inputs.map((pin) => (
             <Pin
               key={pin.id}
-              nodeId={id}
               pin={pin}
               side="left"
               value={data.inputValues?.[pin.id] ?? "x"}
@@ -115,7 +112,6 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
           {definition.outputs.map((pin) => (
             <Pin
               key={pin.id}
-              nodeId={id}
               pin={pin}
               side="right"
               value={data.outputValues?.[pin.id] ?? data.value ?? "x"}

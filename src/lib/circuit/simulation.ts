@@ -2,8 +2,7 @@ import type {
   CircuitSnapshot,
   ComponentKind,
   LogicNode,
-  LogicValue,
-  WireEdge
+  LogicValue
 } from "@/types/circuit";
 import { componentDefinitions } from "./definitions";
 
@@ -70,8 +69,6 @@ class UnionFind {
 
 export function evaluateCircuit(snapshot: CircuitSnapshot): CircuitSnapshot {
   const unionFind = new UnionFind();
-  const nodeMap = new Map(snapshot.nodes.map((node) => [node.id, node]));
-
   snapshot.nodes.forEach((node) => {
     const definition = componentDefinitions[node.data.kind];
     [...definition.inputs, ...definition.outputs].forEach((pin) => {
