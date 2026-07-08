@@ -36,6 +36,7 @@ type CircuitStore = CircuitSnapshot & {
   connectPins: (connection: Connection) => void;
   isValidConnection: (connection: Connection) => boolean;
   toggleSource: (nodeId: string, pressed?: boolean) => void;
+  tickClocks: () => void;
   setWireBends: (edgeId: string, bends: WirePoint[]) => void;
   deleteSelection: () => void;
   selectNet: (netId: string | null) => void;
@@ -203,6 +204,24 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
 
       return withHistory(state, { nodes, edges: state.edges });
     }),
+
+  tickClocks: () =>
+    set((state) =>
+      evaluate(
+        state.nodes.map((node) =>
+          node.data.kind === "clock"
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  value: node.data.value === 1 ? 0 : 1
+                }
+              }
+            : node
+        ),
+        state.edges
+      )
+    ),
 
   setWireBends: (edgeId, bends) =>
     set((state) =>

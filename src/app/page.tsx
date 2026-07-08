@@ -1,3 +1,5 @@
+import { LogicSimulator } from "@/components/simulator/logic-simulator";
+
 export default function Home() {
-  return <main className="min-h-screen bg-background text-foreground" />;
+  return <LogicSimulator />;
 }

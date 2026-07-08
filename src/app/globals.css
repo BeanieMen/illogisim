@@ -46,3 +46,25 @@ select,
 textarea {
   font: inherit;
 }
+
+.react-flow__handle {
+  opacity: 1;
+}
+
+.react-flow__handle.connectingto,
+.react-flow__handle.valid {
+  box-shadow: 0 0 0 5px rgb(22 163 74 / 0.18);
+}
+
+.react-flow__handle.connectingfrom {
+  box-shadow: 0 0 0 5px rgb(8 145 178 / 0.18);
+}
+
+.react-flow__handle.connectionindicator:hover {
+  filter: brightness(1.08);
+}
+
+body[data-connecting-handle="target"] .react-flow__handle-source,
+body[data-connecting-handle="source"] .react-flow__handle-target {
+  opacity: 0.38;
+}
