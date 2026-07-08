@@ -171,9 +171,6 @@ function SimulatorCanvas() {
             onLoad={loadCircuit}
             onExportPng={exportPng}
           />
-          <div className="hidden rounded-md border border-white/10 bg-slate-950/65 px-3 py-2 text-xs font-medium text-slate-400 shadow-panel backdrop-blur-xl lg:block">
-            Live nets: green high, blue low, muted floating
-          </div>
         </div>
         <ReactFlow
           nodes={nodes}

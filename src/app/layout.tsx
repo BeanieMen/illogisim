@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Digital Logic Simulator",
+  title: "illogisim",
   description: "A browser-based digital circuit simulator with polished wiring."
 };
 

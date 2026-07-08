@@ -1,6 +1,6 @@
 "use client";
 
-import { Boxes, CircuitBoard, Sparkles } from "lucide-react";
+import { Boxes, CircuitBoard } from "lucide-react";
 import { paletteGroups, componentDefinitions } from "@/lib/circuit/definitions";
 import type { ComponentKind } from "@/types/circuit";
 
@@ -15,11 +15,7 @@ export function PalettePanel() {
       <div className="border-b border-white/10 px-4 py-4">
         <div className="flex items-center gap-2 text-base font-bold">
           <CircuitBoard className="size-5 text-teal-300" />
-          Logic Studio
-        </div>
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
-          <Sparkles className="size-3.5 text-violet-300" />
-          Custom gates and live signal flow
+          illogisim
         </div>
       </div>
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
