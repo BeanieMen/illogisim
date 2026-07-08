@@ -46,21 +46,21 @@ export function TopToolbar({
 
   return (
     <TooltipProvider delayDuration={250}>
-      <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-card p-2 shadow-panel">
+      <div className="flex items-center gap-2 rounded-md border border-white/10 bg-slate-950/72 p-2 shadow-panel backdrop-blur-2xl">
         <ToolButton label="Undo" disabled={!canUndo} onClick={onUndo}>
           <Undo2 />
         </ToolButton>
         <ToolButton label="Redo" disabled={!canRedo} onClick={onRedo}>
           <Redo2 />
         </ToolButton>
-        <div className="mx-1 h-7 w-px bg-slate-200" />
+        <div className="mx-1 h-7 w-px bg-white/10" />
         <ToolButton label="Delete selected" onClick={onDelete}>
           <Trash2 />
         </ToolButton>
         <ToolButton label="Reset circuit" onClick={onReset}>
           <RotateCcw />
         </ToolButton>
-        <div className="mx-1 h-7 w-px bg-slate-200" />
+        <div className="mx-1 h-7 w-px bg-white/10" />
         <ToolButton label="Save JSON" onClick={onSave}>
           <FileDown />
         </ToolButton>

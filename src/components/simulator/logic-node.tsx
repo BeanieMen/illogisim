@@ -28,17 +28,17 @@ function Pin({
   return (
     <div
       className={cn(
-        "relative flex h-7 items-center gap-2 text-[11px] font-semibold uppercase text-slate-500",
+        "relative flex h-7 items-center gap-2 text-[11px] font-semibold uppercase text-slate-400",
         side === "right" ? "justify-end pr-3" : "pl-3"
       )}
     >
       {side === "left" ? <span>{pin.label}</span> : null}
       <span
         className={cn(
-          "rounded-sm px-1.5 py-0.5 text-[10px]",
-          value === 1 && "bg-green-100 text-green-700",
-          value === 0 && "bg-blue-100 text-blue-700",
-          value === "x" && "bg-slate-100 text-slate-500"
+          "rounded-sm border px-1.5 py-0.5 text-[10px]",
+          value === 1 && "border-green-400/30 bg-green-400/15 text-green-300",
+          value === 0 && "border-blue-400/30 bg-blue-400/15 text-blue-300",
+          value === "x" && "border-slate-500/30 bg-slate-500/15 text-slate-400"
         )}
       >
         {valueLabel(value)}
@@ -49,8 +49,8 @@ function Pin({
         type={isOutput ? "source" : "target"}
         position={isOutput ? Position.Right : Position.Left}
         className={cn(
-          "!h-4 !w-4 !rounded-full !border-2 !border-white !shadow-md",
-          isOutput ? "!right-[-9px] !bg-cyan-600" : "!left-[-9px] !bg-amber-500"
+          "!h-4 !w-4 !rounded-full !border-2 !border-slate-950 !shadow-[0_0_18px_rgb(45_212_191/0.18)]",
+          isOutput ? "!right-[-9px] !bg-teal-300" : "!left-[-9px] !bg-amber-300"
         )}
       />
     </div>
@@ -71,8 +71,8 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
   return (
     <div
       className={cn(
-        "min-w-[144px] rounded-md border bg-card text-card-foreground shadow-sm transition-shadow",
-        selected ? "border-cyan-500 shadow-panel" : "border-slate-300"
+        "min-w-[144px] rounded-md border bg-slate-950/88 text-card-foreground shadow-[0_14px_40px_rgb(0_0_0/0.3)] backdrop-blur transition-shadow",
+        selected ? "border-teal-300 shadow-[0_0_0_1px_rgb(45_212_191/0.4),0_18px_60px_rgb(20_184_166/0.16)]" : "border-white/10"
       )}
       style={{ borderTopColor: definition.accent, borderTopWidth: 4 }}
     >
@@ -80,13 +80,13 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
         <NodeIcon kind={data.kind} active={active} />
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-bold">{data.label}</div>
-          <div className="truncate text-[11px] text-slate-500">{definition.description}</div>
+          <div className="truncate text-[11px] text-slate-400">{definition.description}</div>
         </div>
         {["switch", "button"].includes(data.kind) ? (
           <button
             className={cn(
-              "nodrag rounded-md border border-slate-200 p-1 transition-colors",
-              data.value === 1 ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
+              "nodrag rounded-md border border-white/10 p-1 transition-colors",
+              data.value === 1 ? "bg-green-400/15 text-green-300" : "bg-slate-800 text-slate-400"
             )}
             onClick={() => data.kind === "switch" && toggleSource(id)}
             onPointerDown={() => data.kind === "button" && toggleSource(id, true)}
@@ -97,7 +97,7 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
           </button>
         ) : null}
       </div>
-      <div className="grid grid-cols-2 gap-2 border-t border-slate-200 px-1 py-2">
+      <div className="grid grid-cols-2 gap-2 border-t border-white/10 px-1 py-2">
         <div className="space-y-1">
           {definition.inputs.map((pin) => (
             <Pin
@@ -124,7 +124,7 @@ export const LogicNodeComponent = memo(function LogicNodeComponent({
 });
 
 function NodeIcon({ kind, active }: { kind: LogicNode["data"]["kind"]; active: boolean }) {
-  const className = cn("size-5", active ? "text-green-600" : "text-slate-500");
+  const className = cn("size-5", active ? "text-green-300" : "text-slate-500");
 
   if (kind === "led") return <Lightbulb className={className} />;
   if (kind === "clock") return <Clock className={className} />;

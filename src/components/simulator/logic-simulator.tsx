@@ -154,7 +154,7 @@ function SimulatorCanvas() {
   }, []);
 
   return (
-    <main className="flex h-screen min-h-[620px] flex-col overflow-hidden bg-slate-100 text-slate-950 md:flex-row">
+    <main className="flex h-screen min-h-[620px] flex-col overflow-hidden bg-transparent text-slate-100 md:flex-row">
       <div className="h-[260px] shrink-0 md:h-full">
         <PalettePanel />
       </div>
@@ -171,8 +171,8 @@ function SimulatorCanvas() {
             onLoad={loadCircuit}
             onExportPng={exportPng}
           />
-          <div className="hidden rounded-md border border-slate-200 bg-card px-3 py-2 text-xs font-medium text-slate-500 shadow-panel lg:block">
-            Scroll to zoom, drag empty space to pan, drag output pins to input pins
+          <div className="hidden rounded-md border border-white/10 bg-slate-950/65 px-3 py-2 text-xs font-medium text-slate-400 shadow-panel backdrop-blur-xl lg:block">
+            Live nets: green high, blue low, muted floating
           </div>
         </div>
         <ReactFlow
@@ -202,14 +202,14 @@ function SimulatorCanvas() {
           multiSelectionKeyCode={["Meta", "Control"]}
           proOptions={{ hideAttribution: true }}
         >
-          <Background variant={BackgroundVariant.Lines} gap={24} size={1} color="#cbd5e1" />
+          <Background variant={BackgroundVariant.Dots} gap={44} size={0.7} color="#334155" />
           <MiniMap
             pannable
             zoomable
-            className="!bottom-4 !right-4 !rounded-md !border !border-slate-200 !bg-white/90"
-            maskColor="rgb(15 23 42 / 0.08)"
+            className="!bottom-4 !right-4 !rounded-md !border !border-white/10 !bg-slate-950/80"
+            maskColor="rgb(2 6 23 / 0.35)"
           />
-          <Controls className="!bottom-4 !left-4 !rounded-md !border !border-slate-200 !bg-white/90" />
+          <Controls className="!bottom-4 !left-4 !rounded-md !border !border-white/10 !bg-slate-950/80" />
         </ReactFlow>
       </section>
     </main>

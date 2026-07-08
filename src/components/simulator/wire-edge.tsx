@@ -13,8 +13,8 @@ import { pointsToPath, routeOrthogonal, segmentMidpoints, snapToGrid } from "@/l
 
 const wireColors = {
   1: "#16a34a",
-  0: "#2563eb",
-  x: "#94a3b8"
+  0: "#3b82f6",
+  x: "#64748b"
 } as const;
 
 export function WireEdge({
@@ -108,7 +108,7 @@ export function WireEdge({
                 cx={7}
                 cy={7}
                 r={6}
-                className="cursor-grab fill-white stroke-cyan-700 stroke-2 active:cursor-grabbing"
+                className="cursor-grab fill-slate-950 stroke-teal-300 stroke-2 active:cursor-grabbing"
                 onPointerDown={beginBendDrag(index, controls)}
               />
             </svg>
@@ -127,7 +127,7 @@ export function WireEdge({
                 cx={6}
                 cy={6}
                 r={5}
-                className="cursor-grab fill-cyan-50 stroke-cyan-500 stroke-2 active:cursor-grabbing"
+                className="cursor-grab fill-slate-900 stroke-teal-400 stroke-2 active:cursor-grabbing"
                 onPointerDown={beginBendDrag(index, insertionControls)}
               />
             </svg>
