@@ -5,3 +5,5 @@ you can run it via
 bun i
 bun dev
 ```
+
+AI was used in the making of this frontend
